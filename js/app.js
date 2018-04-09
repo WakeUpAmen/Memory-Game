@@ -1,47 +1,63 @@
+// Hello.
+//
+// This is JSHint, a tool that helps to detect errors and potential
+// problems in your JavaScript code.
+//
+// To start, simply enter some JavaScript anywhere on this page. Your
+// report will appear on the right side.
+//
+// Additionally, you can toggle specific options in the Configure
+// menu.
+
 /*
  * Create a list that holds all of your cards
  */
-let cards = ['diamond', 'diamond', 'plane', 'plane', 'cube', 'cube', 'bolt', 'bolt', 'leaf', 'leaf', 'bicycle', 'bicycle', 'bomb', 'bomb', 'anchor', 'anchor'];
-let rate3 = 20;
-let rate2 = 15;
-let rate1 = 10;
-let rateStar = document.getElementsByClassName("stars");
+var cards = ['diamond', 'diamond', 'plane', 'plane', 'cube', 'cube', 'bolt', 'bolt', 'leaf', 'leaf', 'bicycle', 'bicycle', 'bomb', 'bomb', 'anchor', 'anchor'];
+var rate3 = 50;
+var rate2 = 35;
+var rate1 = 20;
 
-let cardNumbers = 16;
+var match = 0;
+var moves = 0;
 
-let matched = 0;
-let moves = 0;
-let moveElement = document.getElementsByClassName('moves');
+var timerElement = document.querySelector('.timer');
+var timeUsage = 0;
+var currentTime = 0;
 
-let timerElement = document.querySelector('.timer');
-let timeUsage = 0;
-let currentTime = 0;
-
-let ulStar = document.getElementsByClassName('stars');
 var lis = document.querySelectorAll('.stars li');
-let deck = document.querySelector('.deck');
-let cardsElment = document.querySelectorAll('.deck li');
 
+var opened = [];
+var $deck = $('.deck');
+var $movesElment = $('.moves');
+var $restartGame = $('.restart');
 /*
  * init game
-*/
+ */
 function initGame(){
+	match = 0;
 	moves = 0;
-	moveElement.textContent = "0";
+	$movesElment.html(0);
 	shuffle(cards);
 	//init star
-	for(var i=0; li=lis[i]; i++) {
-    	li.innerHTML = '<i class="fa fa-star">';
+  
+	for (var i = 0; i < lis.length; i++) {
+	    lis[i].innerHTML = '<i class="fa fa-star">';
 	}
+  
+	//for(var i = 0; li = lis[i]; i++) {
+  //  	li.innerHTML = '<i class="fa fa-star">';
+	//}
 
 	//init card
-	for(var i=0; card = cardsElment[i]; i++) {
-		// card.innerHTML = '<i class="fa fa-star">';
-    	card.innerHTML = '<i class="fa fa-' + cards[i] +'"></i>';
+	$deck.empty();
+	for (var j = 0; j < cards.length; j++) {
+		$deck.append($('<li class="card"><i class="fa fa-' + cards[j] + '"></i></li>'));
 	}
 	//listen card
 	addListenerToCard();
 	//
+	resetTimer(currentTime);
+	timerElement.textContent = 0;
 	initTimer();
 }
 /*
@@ -84,60 +100,106 @@ function shuffle(array) {
 function setRate(moves){
 	var rating = 3;
 	if(moves < rate1){
-		for(var i=0; li=lis[i]; i++) {
+		for(var i=0, li=lis[i]; i < lis.length; i++) {
     		li.innerHTML = '<i class="fa fa-star">';
 		}
 		rating = 3;
 	}else if(moves > rate1 && moves < rate2){
-		for(var i=2; li=lis[i]; i++) {
-    		li.innerHTML = '<i class="fa fa-star-o">';
-		}
-		rating = 2;
+    	lis[2].innerHTML = '<i class="fa fa-star-o">';
+    	rating = 2;
 	}else if (moves > rate2 && moves < rate3) {
-		for(var i=1; li=lis[i]; i++) {
-    		li.innerHTML = '<i class="fa fa-star-o">';
+		for(var j=1, lj=lis[j]; j< lis.length; j++) {
+    		lj.innerHTML = '<i class="fa fa-star-o">';
 		}
 		rating = 1;
-	}else{
-		for(var i=0; li=lis[i]; i++) {
-    		li.innerHTML = '<i class="fa fa-star-o">';
+	}else if (moves > rate3){
+		for(var k = 0, lk=lis[k]; k < lis.length; k++) {
+    		lk.innerHTML = '<i class="fa fa-star-o">';
 		}
-		rating = 0;
 	}
 	return rating;
+}
+
+
+/*
+ *Restart Game
+ */
+ /* 
+  *
+  */
+function resetGame(){
+    if (confirm("Do you want to restart?")) {
+        initGame();
+    } else {
+        return;
+    }
 }
 
 /*
  * add listener to card
  */
 function addListenerToCard(){
-	for(var i=0; card = cardsElment[i]; i++) {
-		// card.innerHTML = '<i class="fa fa-star">';
-    	card.addEventListener('click', function(){
-    		
-    	});
-	}
+	// for(var i=0; card = cardsElment[i]; i++) {
+	$deck.find('.card').bind('click', function () {
+
+		// moveElement.textContent = moves;
+		var $this = $(this);
+		if($this.hasClass('show') || $this.hasClass('match')){
+			return;
+		}
+		var content = $this.context.innerHTML;
+		$this.addClass('open show');
+		
+		opened.push(content);
+		if(opened.length > 1){
+			if (content === opened[0]) {
+				$deck.find('.open').addClass('match animated infinite rubberBand');
+				setTimeout(function () {
+					$deck.find('.match').removeClass('open show animated infinite rubberBand');
+				}, 300);
+				match++;
+			} else {
+				$deck.find('.open').addClass('notmatch animated infinite wobble');
+				setTimeout(function () {
+					$deck.find('.open').removeClass('animated infinite wobble');
+				}, 700);
+				setTimeout(function () {
+					$deck.find('.open').removeClass('open show notmatch animated infinite wobble');
+				}, 300);
+			}
+			moves++;
+			setRate(moves);
+			$movesElment.html(moves);
+			opened = [];
+		}
+
+		if (8 === match) {
+			setTimeout(function () {
+				gaveOver(moves);
+			}, 500);
+		}
+
+	});
+
 }
-
-
 /*
  * game over
  */
- function gaveOver(){
+ function gaveOver(moves){
 
+ 	if (confirm('Congratulations! You Won!\n With ' + moves + ' Moves and ' + setRate(moves) + ' Stars in ' + timeUsage + ' Seconds.\n Woooooo! OK to restart.')) {
+        initGame();
+    } else {
+        return;
+    }
  }
 
- /* 
-  *
-  */
-  function resetGame(){
-
-  }
 
  /*
   * start timer
   */
 function initTimer(){
+	timeUsage = 0;
 	currentTime = setInterval(function () {
 	    timeUsage += 1;
 	    timerElement.textContent = timeUsage;
@@ -148,9 +210,8 @@ function initTimer(){
  * timer reset
  */
 function resetTimer(timeUsage){
-	if(timeUsage){
-		timeUsage = 0;
-		initTimer();
+	if (timeUsage) {
+		clearInterval(timeUsage);
 	}	
 }
 
