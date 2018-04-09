@@ -29,7 +29,6 @@ var lis = document.querySelectorAll('.stars li');
 var opened = [];
 var $deck = $('.deck');
 var $movesElment = $('.moves');
-var $restartGame = $('.restart');
 /*
  * init game
  */
