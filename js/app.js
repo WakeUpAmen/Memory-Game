@@ -13,9 +13,8 @@
  * Create a list that holds all of your cards
  */
 var cards = ['diamond', 'diamond', 'plane', 'plane', 'cube', 'cube', 'bolt', 'bolt', 'leaf', 'leaf', 'bicycle', 'bicycle', 'bomb', 'bomb', 'anchor', 'anchor'];
-var rate3 = 50;
-var rate2 = 35;
-var rate1 = 20;
+var rate2 = 20;
+var rate1 = 15;
 
 var match = 0;
 var moves = 0;
@@ -25,10 +24,12 @@ var timeUsage = 0;
 var currentTime = 0;
 
 var lis = document.querySelectorAll('.stars li');
+var restartElment = document.querySelector('.restart');
 
 var opened = [];
 var $deck = $('.deck');
 var $movesElment = $('.moves');
+// var $restarter = $('.restart');
 /*
  * init game
  */
@@ -42,10 +43,6 @@ function initGame(){
 	for (var i = 0; i < lis.length; i++) {
 	    lis[i].innerHTML = '<i class="fa fa-star">';
 	}
-  
-	//for(var i = 0; li = lis[i]; i++) {
-  //  	li.innerHTML = '<i class="fa fa-star">';
-	//}
 
 	//init card
 	$deck.empty();
@@ -98,23 +95,14 @@ function shuffle(array) {
 */
 function setRate(moves){
 	var rating = 3;
-	if(moves < rate1){
-		for(var i=0, li=lis[i]; i < lis.length; i++) {
-    		li.innerHTML = '<i class="fa fa-star">';
-		}
-		rating = 3;
-	}else if(moves > rate1 && moves < rate2){
+	if(moves > rate1 && moves < rate2){
     	lis[2].innerHTML = '<i class="fa fa-star-o">';
     	rating = 2;
-	}else if (moves > rate2 && moves < rate3) {
+	}else if(moves > rate2){
 		for(var j=1, lj=lis[j]; j< lis.length; j++) {
     		lj.innerHTML = '<i class="fa fa-star-o">';
 		}
 		rating = 1;
-	}else if (moves > rate3){
-		for(var k = 0, lk=lis[k]; k < lis.length; k++) {
-    		lk.innerHTML = '<i class="fa fa-star-o">';
-		}
 	}
 	return rating;
 }
@@ -123,9 +111,7 @@ function setRate(moves){
 /*
  *Restart Game
  */
- /* 
-  *
-  */
+
 function resetGame(){
     if (confirm("Do you want to restart?")) {
         initGame();
@@ -134,6 +120,8 @@ function resetGame(){
     }
 }
 
+restartElment.addEventListener('click', resetGame());
+// $restarter.bind('click', resetGame());
 /*
  * add listener to card
  */
@@ -184,15 +172,15 @@ function addListenerToCard(){
 /*
  * game over
  */
+
  function gaveOver(moves){
 
- 	if (confirm('Congratulations! You Won!\n With ' + moves + ' Moves and ' + setRate(moves) + ' Stars in ' + timeUsage + ' Seconds.\n Woooooo! OK to restart.')) {
+ 	if (confirm('Congratulations! You Won!\n With ' + moves + ' Moves and ' + setRate(moves) + ' Stars in ' + timeUsage + ' Seconds. Woooooo! \nOK to restart.')) {
         initGame();
     } else {
         return;
     }
  }
-
 
  /*
   * start timer
@@ -213,5 +201,8 @@ function resetTimer(timeUsage){
 		clearInterval(timeUsage);
 	}	
 }
+
+
+
 
 initGame();
